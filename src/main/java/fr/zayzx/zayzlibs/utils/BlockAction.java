@@ -1,0 +1,498 @@
+package fr.zayzx.zayzlibs.utils;
+
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.MathHelper;
+import net.minecraft.world.World;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class BlockAction {
+
+    // ========== GESTION DES BLOCS ==========
+
+
+    public static Block getBlock(World world, int x, int y, int z) {
+        if (world == null) return null;
+        return world.getBlock(x, y, z);
+    }
+
+
+    public static void setBlock(World world, int x, int y, int z, Block block) {
+        if (world == null || block == null) return;
+        world.setBlock(x, y, z, block);
+    }
+
+
+    public static void setBlock(World world, int x, int y, int z, Block block, int metadata) {
+        if (world == null || block == null) return;
+        world.setBlock(x, y, z, block, metadata, 3);
+    }
+
+
+    public static void setBlock(World world, int x, int y, int z, Block block, int metadata, int flag) {
+        if (world == null || block == null) return;
+        world.setBlock(x, y, z, block, metadata, flag);
+    }
+
+
+    public static void removeBlock(World world, int x, int y, int z) {
+        if (world == null) return;
+        world.setBlockToAir(x, y, z);
+    }
+
+
+    public static void breakBlock(World world, int x, int y, int z, boolean dropItems) {
+        if (world == null) return;
+        Block block = world.getBlock(x, y, z);
+        int meta = world.getBlockMetadata(x, y, z);
+        
+        if (dropItems && block != null) {
+            block.dropBlockAsItem(world, x, y, z, meta, 0);
+        }
+        
+        world.setBlockToAir(x, y, z);
+    }
+
+
+    public static int getMetadata(World world, int x, int y, int z) {
+        if (world == null) return 0;
+        return world.getBlockMetadata(x, y, z);
+    }
+
+
+    public static void setMetadata(World world, int x, int y, int z, int metadata) {
+        if (world == null) return;
+        world.setBlockMetadataWithNotify(x, y, z, metadata, 3);
+    }
+
+    // ========== VÉRIFICATIONS ==========
+
+
+    public static boolean isAir(World world, int x, int y, int z) {
+        if (world == null) return false;
+        return world.isAirBlock(x, y, z);
+    }
+
+
+    public static boolean isSolid(World world, int x, int y, int z) {
+        if (world == null) return false;
+        Block block = world.getBlock(x, y, z);
+        return block != null && block.isOpaqueCube();
+    }
+
+
+    public static boolean isReplaceable(World world, int x, int y, int z) {
+        if (world == null) return false;
+        Block block = world.getBlock(x, y, z);
+        return block == null || block.isReplaceable(world, x, y, z);
+    }
+
+
+    public static int getLightLevel(World world, int x, int y, int z) {
+        if (world == null) return 0;
+        return world.getBlockLightValue(x, y, z);
+    }
+
+
+    public static int getLightEmission(World world, int x, int y, int z) {
+        if (world == null) return 0;
+        Block block = world.getBlock(x, y, z);
+        return block == null ? 0 : block.getLightValue(world, x, y, z);
+    }
+
+
+    public static boolean canSeeSky(World world, int x, int y, int z) {
+        if (world == null) return false;
+        return world.canBlockSeeTheSky(x, y, z);
+    }
+
+    // ========== TILE ENTITIES ==========
+
+
+    public static TileEntity getTileEntity(World world, int x, int y, int z) {
+        if (world == null) return null;
+        return world.getTileEntity(x, y, z);
+    }
+
+
+    public static void removeTileEntity(World world, int x, int y, int z) {
+        if (world == null) return;
+        world.removeTileEntity(x, y, z);
+    }
+
+
+    public static boolean hasTileEntity(World world, int x, int y, int z) {
+        return getTileEntity(world, x, y, z) != null;
+    }
+
+    // ========== ZONES ==========
+
+
+    public static void fillArea(World world, int x1, int y1, int z1, int x2, int y2, int z2, Block block) {
+        if (world == null || block == null) return;
+        
+        int minX = Math.min(x1, x2);
+        int minY = Math.min(y1, y2);
+        int minZ = Math.min(z1, z2);
+        int maxX = Math.max(x1, x2);
+        int maxY = Math.max(y1, y2);
+        int maxZ = Math.max(z1, z2);
+        
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                for (int z = minZ; z <= maxZ; z++) {
+                    world.setBlock(x, y, z, block);
+                }
+            }
+        }
+    }
+
+
+    public static void fillArea(World world, int x1, int y1, int z1, int x2, int y2, int z2, Block block, int metadata) {
+        if (world == null || block == null) return;
+        
+        int minX = Math.min(x1, x2);
+        int minY = Math.min(y1, y2);
+        int minZ = Math.min(z1, z2);
+        int maxX = Math.max(x1, x2);
+        int maxY = Math.max(y1, y2);
+        int maxZ = Math.max(z1, z2);
+        
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                for (int z = minZ; z <= maxZ; z++) {
+                    world.setBlock(x, y, z, block, metadata, 3);
+                }
+            }
+        }
+    }
+
+
+    public static void clearArea(World world, int x1, int y1, int z1, int x2, int y2, int z2) {
+        fillArea(world, x1, y1, z1, x2, y2, z2, Blocks.air);
+    }
+
+
+    public static void replaceArea(World world, int x1, int y1, int z1, int x2, int y2, int z2, Block oldBlock, Block newBlock) {
+        if (world == null || oldBlock == null || newBlock == null) return;
+        
+        int minX = Math.min(x1, x2);
+        int minY = Math.min(y1, y2);
+        int minZ = Math.min(z1, z2);
+        int maxX = Math.max(x1, x2);
+        int maxY = Math.max(y1, y2);
+        int maxZ = Math.max(z1, z2);
+        
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                for (int z = minZ; z <= maxZ; z++) {
+                    if (world.getBlock(x, y, z) == oldBlock) {
+                        world.setBlock(x, y, z, newBlock);
+                    }
+                }
+            }
+        }
+    }
+
+
+    public static void createHollowCube(World world, int x1, int y1, int z1, int x2, int y2, int z2, Block block) {
+        if (world == null || block == null) return;
+        
+        int minX = Math.min(x1, x2);
+        int minY = Math.min(y1, y2);
+        int minZ = Math.min(z1, z2);
+        int maxX = Math.max(x1, x2);
+        int maxY = Math.max(y1, y2);
+        int maxZ = Math.max(z1, z2);
+        
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                for (int z = minZ; z <= maxZ; z++) {
+                    if (x == minX || x == maxX || y == minY || y == maxY || z == minZ || z == maxZ) {
+                        world.setBlock(x, y, z, block);
+                    }
+                }
+            }
+        }
+    }
+
+    // ========== FORMES ==========
+
+
+    public static void createSphere(World world, int centerX, int centerY, int centerZ, int radius, Block block) {
+        if (world == null || block == null) return;
+        
+        for (int x = centerX - radius; x <= centerX + radius; x++) {
+            for (int y = centerY - radius; y <= centerY + radius; y++) {
+                for (int z = centerZ - radius; z <= centerZ + radius; z++) {
+                    double distance = Math.sqrt(
+                        Math.pow(x - centerX, 2) + 
+                        Math.pow(y - centerY, 2) + 
+                        Math.pow(z - centerZ, 2)
+                    );
+                    
+                    if (distance <= radius) {
+                        world.setBlock(x, y, z, block);
+                    }
+                }
+            }
+        }
+    }
+
+
+    public static void createHollowSphere(World world, int centerX, int centerY, int centerZ, int radius, Block block) {
+        if (world == null || block == null) return;
+        
+        for (int x = centerX - radius; x <= centerX + radius; x++) {
+            for (int y = centerY - radius; y <= centerY + radius; y++) {
+                for (int z = centerZ - radius; z <= centerZ + radius; z++) {
+                    double distance = Math.sqrt(
+                        Math.pow(x - centerX, 2) + 
+                        Math.pow(y - centerY, 2) + 
+                        Math.pow(z - centerZ, 2)
+                    );
+                    
+                    if (Math.abs(distance - radius) < 1) {
+                        world.setBlock(x, y, z, block);
+                    }
+                }
+            }
+        }
+    }
+
+
+    public static void createCylinder(World world, int centerX, int baseY, int centerZ, int radius, int height, Block block) {
+        if (world == null || block == null) return;
+        
+        for (int x = centerX - radius; x <= centerX + radius; x++) {
+            for (int z = centerZ - radius; z <= centerZ + radius; z++) {
+                double distance = Math.sqrt(
+                    Math.pow(x - centerX, 2) + 
+                    Math.pow(z - centerZ, 2)
+                );
+                
+                if (distance <= radius) {
+                    for (int y = baseY; y < baseY + height; y++) {
+                        world.setBlock(x, y, z, block);
+                    }
+                }
+            }
+        }
+    }
+
+
+    public static void createPyramid(World world, int baseX, int baseY, int baseZ, int size, Block block) {
+        if (world == null || block == null) return;
+        
+        for (int y = 0; y < size; y++) {
+            int currentSize = size - y;
+            for (int x = -currentSize; x <= currentSize; x++) {
+                for (int z = -currentSize; z <= currentSize; z++) {
+                    world.setBlock(baseX + x, baseY + y, baseZ + z, block);
+                }
+            }
+        }
+    }
+
+
+    public static void createCircle(World world, int centerX, int y, int centerZ, int radius, Block block) {
+        if (world == null || block == null) return;
+        
+        for (int x = centerX - radius; x <= centerX + radius; x++) {
+            for (int z = centerZ - radius; z <= centerZ + radius; z++) {
+                double distance = Math.sqrt(
+                    Math.pow(x - centerX, 2) + 
+                    Math.pow(z - centerZ, 2)
+                );
+                
+                if (distance <= radius) {
+                    world.setBlock(x, y, z, block);
+                }
+            }
+        }
+    }
+
+
+    public static void createWall(World world, int x1, int y1, int z1, int x2, int y2, int z2, Block block) {
+        if (world == null || block == null) return;
+        
+        int minX = Math.min(x1, x2);
+        int minY = Math.min(y1, y2);
+        int minZ = Math.min(z1, z2);
+        int maxX = Math.max(x1, x2);
+        int maxY = Math.max(y1, y2);
+        int maxZ = Math.max(z1, z2);
+        
+        if (minZ == maxZ) {
+            for (int x = minX; x <= maxX; x++) {
+                for (int y = minY; y <= maxY; y++) {
+                    world.setBlock(x, y, minZ, block);
+                }
+            }
+        }
+        else if (minX == maxX) {
+            for (int z = minZ; z <= maxZ; z++) {
+                for (int y = minY; y <= maxY; y++) {
+                    world.setBlock(minX, y, z, block);
+                }
+            }
+        }
+    }
+
+    // ========== PATTERNS ==========
+
+
+    public static void createCheckerboard(World world, int x1, int y, int z1, int x2, int z2, Block block1, Block block2) {
+        if (world == null || block1 == null || block2 == null) return;
+        
+        int minX = Math.min(x1, x2);
+        int minZ = Math.min(z1, z2);
+        int maxX = Math.max(x1, x2);
+        int maxZ = Math.max(z1, z2);
+        
+        for (int x = minX; x <= maxX; x++) {
+            for (int z = minZ; z <= maxZ; z++) {
+                Block block = ((x + z) % 2 == 0) ? block1 : block2;
+                world.setBlock(x, y, z, block);
+            }
+        }
+    }
+
+
+    public static void createStripes(World world, int x1, int y1, int z1, int x2, int y2, int z2, Block block1, Block block2, int stripeWidth) {
+        if (world == null || block1 == null || block2 == null) return;
+        
+        int minX = Math.min(x1, x2);
+        int minY = Math.min(y1, y2);
+        int minZ = Math.min(z1, z2);
+        int maxX = Math.max(x1, x2);
+        int maxY = Math.max(y1, y2);
+        int maxZ = Math.max(z1, z2);
+        
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                for (int z = minZ; z <= maxZ; z++) {
+                    Block block = ((y / stripeWidth) % 2 == 0) ? block1 : block2;
+                    world.setBlock(x, y, z, block);
+                }
+            }
+        }
+    }
+
+    // ========== RECHERCHE ==========
+
+
+    public static List<BlockPos> getBlocksInRadius(World world, int centerX, int centerY, int centerZ, int radius) {
+        List<BlockPos> blocks = new ArrayList<BlockPos>();
+        if (world == null) return blocks;
+        
+        for (int x = centerX - radius; x <= centerX + radius; x++) {
+            for (int y = centerY - radius; y <= centerY + radius; y++) {
+                for (int z = centerZ - radius; z <= centerZ + radius; z++) {
+                    double distance = Math.sqrt(
+                        Math.pow(x - centerX, 2) + 
+                        Math.pow(y - centerY, 2) + 
+                        Math.pow(z - centerZ, 2)
+                    );
+                    
+                    if (distance <= radius) {
+                        blocks.add(new BlockPos(x, y, z));
+                    }
+                }
+            }
+        }
+        
+        return blocks;
+    }
+
+
+    public static List<BlockPos> findBlocksInArea(World world, int x1, int y1, int z1, int x2, int y2, int z2, Block targetBlock) {
+        List<BlockPos> blocks = new ArrayList<BlockPos>();
+        if (world == null || targetBlock == null) return blocks;
+        
+        int minX = Math.min(x1, x2);
+        int minY = Math.min(y1, y2);
+        int minZ = Math.min(z1, z2);
+        int maxX = Math.max(x1, x2);
+        int maxY = Math.max(y1, y2);
+        int maxZ = Math.max(z1, z2);
+        
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                for (int z = minZ; z <= maxZ; z++) {
+                    if (world.getBlock(x, y, z) == targetBlock) {
+                        blocks.add(new BlockPos(x, y, z));
+                    }
+                }
+            }
+        }
+        
+        return blocks;
+    }
+
+
+    public static int countBlocksInArea(World world, int x1, int y1, int z1, int x2, int y2, int z2, Block targetBlock) {
+        return findBlocksInArea(world, x1, y1, z1, x2, y2, z2, targetBlock).size();
+    }
+
+    // ========== CLASSE UTILITAIRE BLOCKPOS ==========
+
+    public static class BlockPos {
+        public int x, y, z;
+
+        public BlockPos(int x, int y, int z) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+
+        @Override
+        public String toString() {
+            return "BlockPos{x=" + x + ", y=" + y + ", z=" + z + "}";
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof BlockPos)) return false;
+            BlockPos other = (BlockPos) obj;
+            return this.x == other.x && this.y == other.y && this.z == other.z;
+        }
+
+        @Override
+        public int hashCode() {
+            return (x * 31 + y) * 31 + z;
+        }
+    }
+
+    // ========== UTILITAIRES ==========
+
+
+    public static void updateBlock(World world, int x, int y, int z) {
+        if (world == null) return;
+        world.markBlockForUpdate(x, y, z);
+    }
+
+
+    public static void notifyNeighbors(World world, int x, int y, int z) {
+        if (world == null) return;
+        Block block = world.getBlock(x, y, z);
+        if (block != null) {
+            world.notifyBlocksOfNeighborChange(x, y, z, block);
+        }
+    }
+
+
+    public static int getTopBlock(World world, int x, int z) {
+        if (world == null) return 0;
+        return world.getTopSolidOrLiquidBlock(x, z);
+    }
+
+
+    public static int getHeightValue(World world, int x, int z) {
+        if (world == null) return 0;
+        return world.getHeightValue(x, z);
+    }
+}

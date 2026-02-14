@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+    <fullyQualifiedTypeName name="fr.zayzx.zayzlibs.proxy.CommonProxy"/>
+    <fullyQualifiedTypeName name="cpw.mods.fml.common.event.FMLPreInitializationEvent"/>
+    <fullyQualifiedTypeName name="net.minecraft.item.Item"/>
+</qualifiedTypeNameHistroy>

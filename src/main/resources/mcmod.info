@@ -1,0 +1,16 @@
+[
+{
+  "modid": "zayzlibs",
+  "name": "ZayzLibs",
+  "description": "A simple libs for minecraft mod.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["ZayzX"],
+  "credits": "The Forge and FML guys, for making this example",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

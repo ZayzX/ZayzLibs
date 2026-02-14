@@ -1,0 +1,640 @@
+package fr.zayzx.zayzlibs.utils;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.entity.RenderItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.opengl.GL11;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class GuiAction {
+
+    // ========== COLORS ==========
+
+    public static final int COLOR_WHITE = 0xFFFFFFFF;
+    public static final int COLOR_BLACK = 0xFF000000;
+    public static final int COLOR_RED = 0xFFFF0000;
+    public static final int COLOR_GREEN = 0xFF00FF00;
+    public static final int COLOR_BLUE = 0xFF0000FF;
+    public static final int COLOR_YELLOW = 0xFFFFFF00;
+    public static final int COLOR_CYAN = 0xFF00FFFF;
+    public static final int COLOR_MAGENTA = 0xFFFF00FF;
+    public static final int COLOR_ORANGE = 0xFFFF8800;
+    public static final int COLOR_PURPLE = 0xFF8800FF;
+    public static final int COLOR_GRAY = 0xFF808080;
+    public static final int COLOR_LIGHT_GRAY = 0xFFC0C0C0;
+    public static final int COLOR_DARK_GRAY = 0xFF404040;
+    public static final int COLOR_TRANSPARENT = 0x00000000;
+
+    public static final int COLOR_OVERLAY_DARK = 0x80000000;
+    public static final int COLOR_OVERLAY_LIGHT = 0x80FFFFFF;
+
+    // ========== DRAW RECTANGLE ==========
+
+
+    public static void drawRect(int x, int y, int width, int height, int color) {
+        Gui.drawRect(x, y, x + width, y + height, color);
+    }
+
+
+    public static void drawRectWithBorder(int x, int y, int width, int height, int fillColor, int borderColor, int borderWidth) {
+        drawRect(x, y, width, height, fillColor);
+        
+        drawRect(x, y, width, borderWidth, borderColor); // Haut
+        drawRect(x, y + height - borderWidth, width, borderWidth, borderColor); // Bas
+        drawRect(x, y, borderWidth, height, borderColor); // Gauche
+        drawRect(x + width - borderWidth, y, borderWidth, height, borderColor); // Droite
+    }
+
+
+    public static void drawGradientRect(int x, int y, int width, int height, int colorTop, int colorBottom) {
+        float a1 = (colorTop >> 24 & 255) / 255.0F;
+        float r1 = (colorTop >> 16 & 255) / 255.0F;
+        float g1 = (colorTop >> 8 & 255) / 255.0F;
+        float b1 = (colorTop & 255) / 255.0F;
+        float a2 = (colorBottom >> 24 & 255) / 255.0F;
+        float r2 = (colorBottom >> 16 & 255) / 255.0F;
+        float g2 = (colorBottom >> 8 & 255) / 255.0F;
+        float b2 = (colorBottom & 255) / 255.0F;
+        
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glDisable(GL11.GL_ALPHA_TEST);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GL11.glShadeModel(GL11.GL_SMOOTH);
+        
+        Tessellator tessellator = Tessellator.instance;
+        tessellator.startDrawing(7);
+        tessellator.setColorRGBA_F(r1, g1, b1, a1);
+        tessellator.addVertex(x + width, y, 0.0D);
+        tessellator.addVertex(x, y, 0.0D);
+        tessellator.setColorRGBA_F(r2, g2, b2, a2);
+        tessellator.addVertex(x, y + height, 0.0D);
+        tessellator.addVertex(x + width, y + height, 0.0D);
+        tessellator.draw();
+        
+        GL11.glShadeModel(GL11.GL_FLAT);
+        GL11.glDisable(GL11.GL_BLEND);
+        GL11.glEnable(GL11.GL_ALPHA_TEST);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+    }
+
+
+    public static void drawHorizontalGradientRect(int x, int y, int width, int height, int colorLeft, int colorRight) {
+        float a1 = (colorLeft >> 24 & 255) / 255.0F;
+        float r1 = (colorLeft >> 16 & 255) / 255.0F;
+        float g1 = (colorLeft >> 8 & 255) / 255.0F;
+        float b1 = (colorLeft & 255) / 255.0F;
+        float a2 = (colorRight >> 24 & 255) / 255.0F;
+        float r2 = (colorRight >> 16 & 255) / 255.0F;
+        float g2 = (colorRight >> 8 & 255) / 255.0F;
+        float b2 = (colorRight & 255) / 255.0F;
+        
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glDisable(GL11.GL_ALPHA_TEST);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GL11.glShadeModel(GL11.GL_SMOOTH);
+        
+        Tessellator tessellator = Tessellator.instance;
+        tessellator.startDrawing(7);
+        tessellator.setColorRGBA_F(r2, g2, b2, a2);
+        tessellator.addVertex(x + width, y, 0.0D);
+        tessellator.setColorRGBA_F(r1, g1, b1, a1);
+        tessellator.addVertex(x, y, 0.0D);
+        tessellator.addVertex(x, y + height, 0.0D);
+        tessellator.setColorRGBA_F(r2, g2, b2, a2);
+        tessellator.addVertex(x + width, y + height, 0.0D);
+        tessellator.draw();
+        
+        GL11.glShadeModel(GL11.GL_FLAT);
+        GL11.glDisable(GL11.GL_BLEND);
+        GL11.glEnable(GL11.GL_ALPHA_TEST);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+    }
+
+
+    public static void drawRoundedRect(int x, int y, int width, int height, int radius, int color) {
+        drawRect(x + radius, y, width - radius * 2, height, color);
+        drawRect(x, y + radius, radius, height - radius * 2, color);
+        drawRect(x + width - radius, y + radius, radius, height - radius * 2, color);
+        
+        drawRect(x + radius, y, radius, radius, color);
+        drawRect(x + width - radius * 2, y, radius, radius, color);
+        drawRect(x + radius, y + height - radius, radius, radius, color);
+        drawRect(x + width - radius * 2, y + height - radius, radius, radius, color);
+    }
+
+    // ========== DRAW TEXT ==========
+
+
+    public static void drawString(FontRenderer fontRenderer, String text, int x, int y, int color) {
+        if (fontRenderer == null) return;
+        fontRenderer.drawString(text, x, y, color);
+    }
+
+
+    public static void drawStringWithShadow(FontRenderer fontRenderer, String text, int x, int y, int color) {
+        if (fontRenderer == null) return;
+        fontRenderer.drawStringWithShadow(text, x, y, color);
+    }
+
+
+    public static void drawCenteredString(FontRenderer fontRenderer, String text, int centerX, int y, int color) {
+        if (fontRenderer == null) return;
+        int textWidth = fontRenderer.getStringWidth(text);
+        fontRenderer.drawString(text, centerX - textWidth / 2, y, color);
+    }
+
+
+    public static void drawCenteredStringWithShadow(FontRenderer fontRenderer, String text, int centerX, int y, int color) {
+        if (fontRenderer == null) return;
+        int textWidth = fontRenderer.getStringWidth(text);
+        fontRenderer.drawStringWithShadow(text, centerX - textWidth / 2, y, color);
+    }
+
+
+    public static void drawStringWithBackground(FontRenderer fontRenderer, String text, int x, int y, int textColor, int bgColor) {
+        if (fontRenderer == null) return;
+        int width = fontRenderer.getStringWidth(text) + 4;
+        int height = fontRenderer.FONT_HEIGHT + 2;
+        drawRect(x - 2, y - 1, width, height, bgColor);
+        fontRenderer.drawString(text, x, y, textColor);
+    }
+
+
+    public static void drawMultilineString(FontRenderer fontRenderer, String text, int x, int y, int color, int lineSpacing) {
+        if (fontRenderer == null) return;
+        String[] lines = text.split("\n");
+        for (int i = 0; i < lines.length; i++) {
+            fontRenderer.drawString(lines[i], x, y + i * lineSpacing, color);
+        }
+    }
+
+
+    public static int getStringWidth(FontRenderer fontRenderer, String text) {
+        if (fontRenderer == null) return 0;
+        return fontRenderer.getStringWidth(text);
+    }
+
+
+    public static int getFontHeight(FontRenderer fontRenderer) {
+        if (fontRenderer == null) return 0;
+        return fontRenderer.FONT_HEIGHT;
+    }
+
+    // ========== DRAW ITEMS ==========
+
+    private static RenderItem itemRender = new RenderItem();
+
+
+    public static void drawItemStack(ItemStack stack, int x, int y) {
+        if (stack == null) return;
+        GL11.glPushMatrix();
+        RenderHelper.enableGUIStandardItemLighting();
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+        itemRender.renderItemAndEffectIntoGUI(Minecraft.getMinecraft().fontRenderer, 
+            Minecraft.getMinecraft().getTextureManager(), stack, x, y);
+        itemRender.renderItemOverlayIntoGUI(Minecraft.getMinecraft().fontRenderer, 
+            Minecraft.getMinecraft().getTextureManager(), stack, x, y);
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
+        RenderHelper.disableStandardItemLighting();
+        GL11.glPopMatrix();
+    }
+
+
+    public static void drawItemStackWithCount(ItemStack stack, int x, int y, String count) {
+        if (stack == null) return;
+        drawItemStack(stack, x, y);
+        if (count != null) {
+            FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+            GL11.glDisable(GL11.GL_LIGHTING);
+            GL11.glDisable(GL11.GL_DEPTH_TEST);
+            fontRenderer.drawStringWithShadow(count, x + 19 - 2 - fontRenderer.getStringWidth(count), y + 6 + 3, COLOR_WHITE);
+            GL11.glEnable(GL11.GL_LIGHTING);
+            GL11.glEnable(GL11.GL_DEPTH_TEST);
+        }
+    }
+
+    // ========== DRAW TEXTURES ==========
+
+
+    public static void drawTexture(ResourceLocation texture, int x, int y, int width, int height) {
+        Minecraft.getMinecraft().getTextureManager().bindTexture(texture);
+        Gui.func_146110_a(x, y, 0, 0, width, height, width, height);
+    }
+
+
+    public static void drawTextureUV(ResourceLocation texture, int x, int y, int u, int v, int width, int height, int textureWidth, int textureHeight) {
+        Minecraft.getMinecraft().getTextureManager().bindTexture(texture);
+        Gui.func_146110_a(x, y, u, v, width, height, textureWidth, textureHeight);
+    }
+
+
+    public static void drawModalRect(int x, int y, int u, int v, int width, int height) {
+        Gui gui = new Gui();
+        gui.drawTexturedModalRect(x, y, u, v, width, height);
+    }
+
+    // ========== DRAW LINES ==========
+
+
+    public static void drawLine(int x1, int y1, int x2, int y2, int color, float width) {
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GL11.glLineWidth(width);
+
+        float a = (color >> 24 & 255) / 255.0F;
+        float r = (color >> 16 & 255) / 255.0F;
+        float g = (color >> 8 & 255) / 255.0F;
+        float b = (color & 255) / 255.0F;
+
+        Tessellator tessellator = Tessellator.instance;
+        tessellator.startDrawing(GL11.GL_LINES);
+        tessellator.setColorRGBA_F(r, g, b, a);
+        tessellator.addVertex(x1, y1, 0);
+        tessellator.addVertex(x2, y2, 0);
+        tessellator.draw();
+
+        GL11.glDisable(GL11.GL_BLEND);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+    }
+
+
+    public static void drawHorizontalLine(int x, int y, int length, int color, float width) {
+        drawLine(x, y, x + length, y, color, width);
+    }
+
+
+    public static void drawVerticalLine(int x, int y, int length, int color, float width) {
+        drawLine(x, y, x, y + length, color, width);
+    }
+
+    // ========== DRAW CIRCLE ==========
+
+
+    public static void drawCircle(int centerX, int centerY, int radius, int color, int segments) {
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+
+        float a = (color >> 24 & 255) / 255.0F;
+        float r = (color >> 16 & 255) / 255.0F;
+        float g = (color >> 8 & 255) / 255.0F;
+        float b = (color & 255) / 255.0F;
+
+        Tessellator tessellator = Tessellator.instance;
+        tessellator.startDrawing(GL11.GL_TRIANGLE_FAN);
+        tessellator.setColorRGBA_F(r, g, b, a);
+        tessellator.addVertex(centerX, centerY, 0);
+
+        for (int i = 0; i <= segments; i++) {
+            double angle = 2 * Math.PI * i / segments;
+            double x = centerX + radius * Math.cos(angle);
+            double y = centerY + radius * Math.sin(angle);
+            tessellator.addVertex(x, y, 0);
+        }
+
+        tessellator.draw();
+        GL11.glDisable(GL11.GL_BLEND);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+    }
+
+
+    public static void drawCircleOutline(int centerX, int centerY, int radius, int color, float width, int segments) {
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GL11.glLineWidth(width);
+
+        float a = (color >> 24 & 255) / 255.0F;
+        float r = (color >> 16 & 255) / 255.0F;
+        float g = (color >> 8 & 255) / 255.0F;
+        float b = (color & 255) / 255.0F;
+
+        Tessellator tessellator = Tessellator.instance;
+        tessellator.startDrawing(GL11.GL_LINE_LOOP);
+        tessellator.setColorRGBA_F(r, g, b, a);
+
+        for (int i = 0; i < segments; i++) {
+            double angle = 2 * Math.PI * i / segments;
+            double x = centerX + radius * Math.cos(angle);
+            double y = centerY + radius * Math.sin(angle);
+            tessellator.addVertex(x, y, 0);
+        }
+
+        tessellator.draw();
+        GL11.glDisable(GL11.GL_BLEND);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+    }
+
+    // ========== DRAW PROGRESS BAR ==========
+
+
+    public static void drawProgressBar(int x, int y, int width, int height, float progress, int bgColor, int fillColor, int borderColor) {
+        progress = Math.max(0, Math.min(1, progress));
+        int fillWidth = (int) (width * progress);
+
+        drawRect(x, y, width, height, bgColor);
+
+        if (fillWidth > 0) {
+            drawRect(x, y, fillWidth, height, fillColor);
+        }
+
+        drawRectWithBorder(x, y, width, height, COLOR_TRANSPARENT, borderColor, 1);
+    }
+
+
+    public static void drawVerticalProgressBar(int x, int y, int width, int height, float progress, int bgColor, int fillColor, int borderColor) {
+        progress = Math.max(0, Math.min(1, progress));
+        int fillHeight = (int) (height * progress);
+
+        drawRect(x, y, width, height, bgColor);
+
+        if (fillHeight > 0) {
+            drawRect(x, y + height - fillHeight, width, fillHeight, fillColor);
+        }
+
+        drawRectWithBorder(x, y, width, height, COLOR_TRANSPARENT, borderColor, 1);
+    }
+
+
+    public static void drawHealthBar(int x, int y, int width, int height, float health, float maxHealth) {
+        float progress = health / maxHealth;
+        int color = health > maxHealth / 2 ? COLOR_GREEN : (health > maxHealth / 4 ? COLOR_YELLOW : COLOR_RED);
+        drawProgressBar(x, y, width, height, progress, COLOR_DARK_GRAY, color, COLOR_BLACK);
+    }
+
+
+    public static void drawXPBar(int x, int y, int width, int height, float xp, float maxXP) {
+        float progress = xp / maxXP;
+        drawProgressBar(x, y, width, height, progress, COLOR_DARK_GRAY, COLOR_CYAN, COLOR_BLACK);
+    }
+
+    // ========== TOOLTIPS ==========
+
+
+    public static void drawTooltip(List<String> lines, int x, int y, FontRenderer fontRenderer) {
+        if (lines == null || lines.isEmpty() || fontRenderer == null) return;
+
+        int maxWidth = 0;
+        for (String line : lines) {
+            int width = fontRenderer.getStringWidth(line);
+            if (width > maxWidth) maxWidth = width;
+        }
+
+        int tooltipX = x + 12;
+        int tooltipY = y - 12;
+        int height = 8;
+
+        if (lines.size() > 1) {
+            height += 2 + (lines.size() - 1) * 10;
+        }
+
+        drawGradientRect(tooltipX - 3, tooltipY - 4, maxWidth + 6, 1, COLOR_OVERLAY_DARK, COLOR_OVERLAY_DARK);
+        drawGradientRect(tooltipX - 3, tooltipY + height + 3, maxWidth + 6, 1, COLOR_OVERLAY_DARK, COLOR_OVERLAY_DARK);
+        drawGradientRect(tooltipX - 3, tooltipY - 3, maxWidth + 6, height + 6, COLOR_OVERLAY_DARK, COLOR_OVERLAY_DARK);
+        drawGradientRect(tooltipX - 4, tooltipY - 3, 1, height + 6, COLOR_OVERLAY_DARK, COLOR_OVERLAY_DARK);
+        drawGradientRect(tooltipX + maxWidth + 3, tooltipY - 3, 1, height + 6, COLOR_OVERLAY_DARK, COLOR_OVERLAY_DARK);
+
+        int borderColor1 = 0x505000FF;
+        int borderColor2 = (borderColor1 & 0xFEFEFE) >> 1 | borderColor1 & 0xFF000000;
+        drawGradientRect(tooltipX - 3, tooltipY - 3 + 1, 1, height + 6 - 2, borderColor1, borderColor2);
+        drawGradientRect(tooltipX + maxWidth + 2, tooltipY - 3 + 1, 1, height + 6 - 2, borderColor1, borderColor2);
+        drawGradientRect(tooltipX - 3, tooltipY - 3, maxWidth + 6, 1, borderColor1, borderColor1);
+        drawGradientRect(tooltipX - 3, tooltipY + height + 2, maxWidth + 6, 1, borderColor2, borderColor2);
+
+        for (int i = 0; i < lines.size(); i++) {
+            String line = lines.get(i);
+            fontRenderer.drawStringWithShadow(line, tooltipX, tooltipY, COLOR_WHITE);
+
+            if (i == 0) {
+                tooltipY += 2;
+            }
+
+            tooltipY += 10;
+        }
+    }
+
+
+    public static void drawSimpleTooltip(String text, int x, int y, FontRenderer fontRenderer) {
+        List<String> lines = new ArrayList<String>();
+        lines.add(text);
+        drawTooltip(lines, x, y, fontRenderer);
+    }
+
+    // ========== OVERLAYS ==========
+
+
+    public static void drawDarkOverlay(int screenWidth, int screenHeight) {
+        drawRect(0, 0, screenWidth, screenHeight, COLOR_OVERLAY_DARK);
+    }
+
+
+    public static void drawOverlay(int screenWidth, int screenHeight, int color) {
+        drawRect(0, 0, screenWidth, screenHeight, color);
+    }
+
+    // ========== PANELS AND CONTAINERS ==========
+
+
+    public static void drawPanel(int x, int y, int width, int height, String title, FontRenderer fontRenderer, int bgColor, int borderColor, int titleColor) {
+        drawRectWithBorder(x, y, width, height, bgColor, borderColor, 2);
+
+        if (title != null && fontRenderer != null) {
+            int titleWidth = fontRenderer.getStringWidth(title);
+            drawRect(x + width / 2 - titleWidth / 2 - 5, y - 5, titleWidth + 10, 10, bgColor);
+            drawCenteredString(fontRenderer, title, x + width / 2, y - 3, titleColor);
+        }
+    }
+
+
+    public static void drawModernPanel(int x, int y, int width, int height, int color) {
+        drawRect(x + 2, y + 2, width, height, 0x50000000);
+        
+        drawRect(x, y, width, height, color);
+        
+        drawRectWithBorder(x, y, width, height, COLOR_TRANSPARENT, 0xFF303030, 1);
+    }
+
+    // ========== COLOR UTILITIES ==========
+
+
+    public static int createColor(int alpha, int red, int green, int blue) {
+        return (alpha << 24) | (red << 16) | (green << 8) | blue;
+    }
+
+
+    public static int createColor(int red, int green, int blue) {
+        return createColor(255, red, green, blue);
+    }
+
+
+    public static int getAlpha(int color) {
+        return (color >> 24) & 0xFF;
+    }
+
+
+    public static int getRed(int color) {
+        return (color >> 16) & 0xFF;
+    }
+
+
+    public static int getGreen(int color) {
+        return (color >> 8) & 0xFF;
+    }
+
+
+    public static int getBlue(int color) {
+        return color & 0xFF;
+    }
+
+
+    public static int lerpColor(int color1, int color2, float progress) {
+        int a1 = getAlpha(color1), r1 = getRed(color1), g1 = getGreen(color1), b1 = getBlue(color1);
+        int a2 = getAlpha(color2), r2 = getRed(color2), g2 = getGreen(color2), b2 = getBlue(color2);
+
+        int a = (int) (a1 + (a2 - a1) * progress);
+        int r = (int) (r1 + (r2 - r1) * progress);
+        int g = (int) (g1 + (g2 - g1) * progress);
+        int b = (int) (b1 + (b2 - b1) * progress);
+
+        return createColor(a, r, g, b);
+    }
+
+    // ========== GUI UTILITIES ==========
+
+
+    public static boolean isMouseOver(int mouseX, int mouseY, int x, int y, int width, int height) {
+        return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
+    }
+
+
+    public static void enableScissor(int x, int y, int width, int height) {
+        Minecraft mc = Minecraft.getMinecraft();
+        int scale = mc.gameSettings.guiScale;
+        if (scale == 0) scale = 1000;
+        
+        int scaleFactor = 0;
+        while (scaleFactor < scale && mc.displayWidth / (scaleFactor + 1) >= 320 && mc.displayHeight / (scaleFactor + 1) >= 240) {
+            scaleFactor++;
+        }
+
+        GL11.glEnable(GL11.GL_SCISSOR_TEST);
+        GL11.glScissor(x * scaleFactor, mc.displayHeight - (y + height) * scaleFactor, width * scaleFactor, height * scaleFactor);
+    }
+
+
+    public static void disableScissor() {
+        GL11.glDisable(GL11.GL_SCISSOR_TEST);
+    }
+
+    // ========== EXEMPLE BASE GUI CLASS ==========
+
+
+    public static abstract class BaseGui extends GuiScreen {
+        protected int guiLeft;
+        protected int guiTop;
+        protected int xSize = 176;
+        protected int ySize = 166;
+
+        @Override
+        public void initGui() {
+            super.initGui();
+            this.guiLeft = (this.width - this.xSize) / 2;
+            this.guiTop = (this.height - this.ySize) / 2;
+        }
+
+        @Override
+        public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+            this.drawDefaultBackground();
+            super.drawScreen(mouseX, mouseY, partialTicks);
+        }
+
+        protected void drawBackground() {
+            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        }
+
+        protected boolean isMouseOver(int mouseX, int mouseY, int x, int y, int width, int height) {
+            return GuiAction.isMouseOver(mouseX, mouseY, x, y, width, height);
+        }
+
+        @Override
+        public boolean doesGuiPauseGame() {
+            return false;
+        }
+    }
+
+
+    public static class StyledButton extends GuiButton {
+        private int normalColor;
+        private int hoverColor;
+        private int borderColor;
+
+        public StyledButton(int id, int x, int y, int width, int height, String text) {
+            super(id, x, y, width, height, text);
+            this.normalColor = createColor(100, 100, 100);
+            this.hoverColor = createColor(120, 120, 120);
+            this.borderColor = COLOR_BLACK;
+        }
+
+        public StyledButton(int id, int x, int y, int width, int height, String text, int normalColor, int hoverColor, int borderColor) {
+            super(id, x, y, width, height, text);
+            this.normalColor = normalColor;
+            this.hoverColor = hoverColor;
+            this.borderColor = borderColor;
+        }
+
+        @Override
+        public void drawButton(Minecraft mc, int mouseX, int mouseY) {
+            if (this.visible) {
+                FontRenderer fontrenderer = mc.fontRenderer;
+                this.field_146123_n = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
+
+                int color = this.field_146123_n ? hoverColor : normalColor;
+                
+                drawRectWithBorder(this.xPosition, this.yPosition, this.width, this.height, color, borderColor, 2);
+
+                int textColor = this.enabled ? COLOR_WHITE : COLOR_GRAY;
+                drawCenteredString(fontrenderer, this.displayString, this.xPosition + this.width / 2, this.yPosition + (this.height - 8) / 2, textColor);
+            }
+        }
+    }
+
+
+    public static class StyledTextField extends GuiTextField {
+        private int bgColor;
+        private int borderColor;
+
+        public StyledTextField(FontRenderer fontRenderer, int x, int y, int width, int height) {
+            super(fontRenderer, x, y, width, height);
+            this.bgColor = createColor(50, 50, 50);
+            this.borderColor = COLOR_GRAY;
+        }
+
+        public void setColors(int bgColor, int borderColor) {
+            this.bgColor = bgColor;
+            this.borderColor = borderColor;
+        }
+
+        @Override
+        public void drawTextBox() {
+            if (this.getVisible()) {
+                drawRectWithBorder(this.xPosition, this.yPosition, this.width, this.height, bgColor, borderColor, 1);
+            }
+            super.drawTextBox();
+        }
+    }
+}
